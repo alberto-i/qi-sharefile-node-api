@@ -31,14 +31,14 @@
     "removeComments": true, // Do not emit comments to output.
     "sourceMap": true, // Generates corresponding '.map' file.
 
-    "incremental": true, // Enable incremental compilation
-    "composite": true, // Enable project compilation
+    "incremental": false, // Enable incremental compilation
+    "composite": false, // Enable project compilation
     "declaration": true, // Generates corresponding '.d.ts' file.
-    "declarationMap": true, // Generates a sourcemap for each corresponding '.d.ts' file.
+    "declarationMap": false, // Generates a sourcemap for each corresponding '.d.ts' file.
     "outDir": "./dist", // Redirect output structure to the directory.
 
-    "emitDecoratorMetadata": true, // Enables experimental support for emitting type metadata for decorators.
-    "experimentalDecorators": true, // Enables experimental support for ES7 decorators.
+    "emitDecoratorMetadata": false, // Enables experimental support for emitting type metadata for decorators.
+    "experimentalDecorators": false, // Enables experimental support for ES7 decorators.
 
     "typeRoots": ["node_modules/@types"], // List of folders to include type definitions from.
 

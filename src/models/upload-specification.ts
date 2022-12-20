@@ -1,7 +1,7 @@
 import axios from 'axios'
 import detectContentType from 'detect-content-type'
 
-import type { UploadConfirmResponse, UploadInfo, UploadPrepareResponse } from 'src/types'
+import type { UploadConfirmResponse, UploadInfo, UploadPrepareResponse } from '../index'
 
 export class UploadSpecification {
   method: string

@@ -1,4 +1,4 @@
-import type { DownloadResponse } from 'src/types'
+import type { DownloadResponse } from '../index'
 
 export class DownloadSpecification {
   token: string

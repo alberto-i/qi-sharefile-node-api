@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig } from 'axios'
 import { DownloadSpecification } from './download-specification'
 import { UploadSpecification } from './upload-specification'
 import { stringify } from 'querystring'
-import type { ChildrenResponse, DownloadResponse, InfoModel, ItemModel, ItemRefModel, UpdateParams } from 'src/types.js'
+import type { ChildrenResponse, DownloadResponse, InfoModel, ItemModel, ItemRefModel, UpdateParams } from '../index'
 
 export class SharefileItem implements ItemModel {
   Id: string
