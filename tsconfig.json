@@ -1,0 +1,56 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2021"], // Specify library files to be included in the compilation.
+    "module": "CommonJS", // Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'.
+    "target": "ES2021", // Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', or 'ESNEXT'.
+
+    "esModuleInterop": true, // Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'.
+    "moduleResolution": "node", // Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6).
+    "allowSyntheticDefaultImports": true, // Allow default imports from modules with no default export. This does not affect code emit, just typechecking.
+    "resolveJsonModule": false,
+
+    "skipLibCheck": true, // Skip type checking of declaration files
+    "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased references to the same file.
+    "allowUnusedLabels": false, // Labels are very rare in JavaScript and typically indicate an attempt to write an object literal
+
+    "allowJs": true, // Allow javascript files to be compiled.
+    "checkJs": true, // Report errors in .js files.
+
+    "strict": true, // Enable all strict type-checking options.
+    "alwaysStrict": true, // Parse in strict mode and emit "use strict" for each source file.
+    "noFallthroughCasesInSwitch": true, // Report errors for fallthrough cases in switch statements.
+    "noImplicitOverride": true, // Requires override keyword when overriding inherited methods
+    "noImplicitReturns": true, // Report error when not all code paths in function return a value.
+    "noImplicitAny": true, // Raise error on expressions and declarations with an implied 'any' type.
+    "noImplicitThis": true, // Raise error on 'this' expressions with an implied 'any' type.
+    "noUnusedLocals": false, // Report errors on unused locals.
+    "noUnusedParameters": false, // Report errors on unused parameters.
+    "importsNotUsedAsValues": "error", // This preserves all imports (the same as the preserve option), but will error when a value import is only used as a type.
+
+    // "tsBuildInfoFile": ".tsbuildinfo", // Specify file to store incremental compilation information
+    "removeComments": true, // Do not emit comments to output.
+    "sourceMap": true, // Generates corresponding '.map' file.
+
+    "incremental": true, // Enable incremental compilation
+    "composite": true, // Enable project compilation
+    "declaration": true, // Generates corresponding '.d.ts' file.
+    "declarationMap": true, // Generates a sourcemap for each corresponding '.d.ts' file.
+    "outDir": "./dist", // Redirect output structure to the directory.
+
+    "emitDecoratorMetadata": true, // Enables experimental support for emitting type metadata for decorators.
+    "experimentalDecorators": true, // Enables experimental support for ES7 decorators.
+
+    "typeRoots": ["node_modules/@types"], // List of folders to include type definitions from.
+
+    "baseUrl": ".", // Base directory to resolve non-absolute module names.
+    "paths": {
+      "@": ["src"],
+      "src": ["src"]
+    }
+  },
+  "ts-node": {
+    "esm": true
+  },
+  "include": ["src", "test"],
+  "exclude": ["node_modules", "dist"]
+}

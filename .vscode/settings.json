@@ -1,0 +1,29 @@
+{
+  "editor.codeActionsOnSave": ["source.fixAll.eslint"],
+  "eslint.validate": ["javascript", "typescript"],
+
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+  "editor.formatOnSave": true,
+  "eslint.format.enable": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "todohighlight.isEnable": true,
+  "todohighlight.isCaseSensitive": false,
+  "todohighlight.keywords": [
+    {
+      "text": "// #region",
+      "color": "#9c88e5",
+      "backgroundColor": "transparent",
+      "overviewRulerColor": "grey",
+      "isWholeLine": true
+    },
+    {
+      "text": "// #endregion",
+      "color": "#9c88e5",
+      "backgroundColor": "transparent",
+      "overviewRulerColor": "grey",
+      "isWholeLine": true
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+@apiURL = https://precisao-i.sf-api.com/sf/v3
+@authURL = https://precisao-i.sharefile.com/oauth/token
+@accessToken = 4nG3Z67Juqu1NiB3qODonsa6l3P7RPs6$$2VVdRIKHcF6fRwGNvlqCBlGD2np49vUM
+
+@SHAREFILE_SUBDOMAIN = precisao-i
+@SHAREFILE_CLIENT_ID = 4t8jqGADBWs96X7X1mIWBB2qSZjGmGFJ
+@SHAREFILE_CLIENT_SECRET = MJvNoUkdi87y1xWpVLpb1KgKgL3iJCCeJiWsI13JrV1lbFPf
+@SHAREFILE_USERNAME = alberto@precisao-i.com
+@SHAREFILE_PASSWORD = n5rv u6tj jnmw yu3e
+
+###
+# Authenticate
+POST {{ authURL }} HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password
+&username={{ SHAREFILE_USERNAME }}
+&password={{ SHAREFILE_PASSWORD }}
+&client_id={{ SHAREFILE_CLIENT_ID }}
+&client_secret={{ SHAREFILE_CLIENT_SECRET }}
+
+###
+# Get Meetings Folder
+GET {{apiURL}}/Items/ByPath?path=/Shared Folders/QiDigital/Meetings/
+Authorization: Bearer {{accessToken}}
+
+###
+# Get Meetings Folder
+GET {{apiURL}}/Items/ByPath?path=/Shared Folders/QiDigital/Meetings/2022-12-31 Teste do QiHub ([1] 89204275035)/meeting-config.xlsx
+Authorization: Bearer {{accessToken}}
+
+###
+# Get Meetings Folder
+GET {{apiURL}}/Items/ByPath?path=/Shared Folders/QiDigital/Meetings/2022-12-31 Teste do QiHub ([1] 89204275035)/meeting-config.xlsx
+Authorization: Bearer {{accessToken}}
+
+###
+# Get Parent Folder
+GET {{apiURL}}/Items(fi4856e2-354e-a22f-4fb7-da546ebbd139)/Parent
+Authorization: Bearer {{accessToken}}
+
+###
+# Get Children
+GET {{apiURL}}/Items(fod81594-0181-49b5-971d-b9a54f22c4ac)/Children?includeDeleted=false
+Authorization: Bearer {{accessToken}}
+
+###
+# Download file no redirect
+GET {{apiURL}}/Items(fi4856e2-354e-a22f-4fb7-da546ebbd139)/Download?redirect=false&includeallversions=false&includeDeleted=false
+Authorization: Bearer {{accessToken}}
+
+###
+# Download file with redirect
+GET {{apiURL}}/Items(fi4856e2-354e-a22f-4fb7-da546ebbd139)/Download?redirect=true&includeallversions=false&includeDeleted=false
+Authorization: Bearer {{accessToken}}
+
+###
+# Download folder no redirect
+GET {{apiURL}}/Items(fod81594-0181-49b5-971d-b9a54f22c4ac)/Download?redirect=false&includeallversions=false&includeDeleted=false
+Authorization: Bearer {{accessToken}}
+
+###
+# Download folder with redirect
+GET {{apiURL}}/Items(fod81594-0181-49b5-971d-b9a54f22c4ac)/Download?redirect=true&includeallversions=false&includeDeleted=false
+Authorization: Bearer {{accessToken}}
+
+###
+# Post upload requisition
+POST {{apiURL}}/Items(fod81594-0181-49b5-971d-b9a54f22c4ac)/Upload?method=standard&raw=true&fileName=meeting.txt
+Authorization: Bearer {{accessToken}}
+
+###
+# Post upload requisition
+POST {{apiURL}}/Items(fod81594-0181-49b5-971d-b9a54f22c4ac)/Upload?method=standard&raw=false&fileName=meeting.txt
+Authorization: Bearer {{accessToken}}
