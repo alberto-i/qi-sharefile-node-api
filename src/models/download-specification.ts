@@ -1,4 +1,10 @@
-import type { DownloadResponse } from '../index'
+export interface DownloadApiResponse {
+  DownloadToken: string
+  DownloadUrl: string
+  DownloadPrepStatusURL?: string
+  'odata.metadata': string
+  'odata.type': string
+}
 
 export class DownloadSpecification {
   token: string
@@ -7,7 +13,7 @@ export class DownloadSpecification {
   OdataMetadata: string
   OdataType: string
 
-  constructor(data: DownloadResponse) {
+  constructor(data: DownloadApiResponse) {
     if (!data) {
       throw new Error('Sharefile API: Empty download response')
     }

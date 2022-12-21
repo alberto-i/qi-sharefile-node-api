@@ -3,21 +3,21 @@ import path from 'path'
 import md5 from 'md5-file'
 import crypto from 'crypto'
 import { AxiosError } from 'axios'
-import { credentials, paths } from '../test/config'
-import { SharefileAPI } from './sharefile-node-api'
-import { DownloadSpecification } from './models/download-specification'
-import { UploadSpecification } from './models/upload-specification'
+import { credentials, paths } from './config'
+import { SharefileAPI, DownloadSpecification, UploadSpecification } from '../src'
+
+jest.setTimeout(30000)
 
 describe('Object creation', () => {
   describe('Sharefile API', () => {
     it('Throws error when creating API without auth params', () => {
       // @ts-expect-error Trying to check for error
-      expect(() => new SharefileAPI()).toThrowError()
+      expect(() => new SharefileAPI()).toThrow()
     })
 
     it('Throws error when creating API with missing params', () => {
       // @ts-expect-error Trying to check for error
-      expect(() => new SharefileAPI({ subdomain: 'x' })).toThrowError()
+      expect(() => new SharefileAPI({ subdomain: 'x' })).toThrow()
     })
 
     it('Creates an API object when created with correct auth params', () => {
@@ -29,41 +29,41 @@ describe('Object creation', () => {
   describe('SharefileItem Specification', () => {
     it('Throws error when creating specification without params', () => {
       // @ts-expect-error Trying to check for error
-      expect(() => new SharefileItem()).toThrowError()
+      expect(() => new SharefileItem()).toThrow()
     })
 
     it('Throws error when creating specification with missing params', () => {
       // @ts-expect-error Trying to check for error
-      expect(() => new SharefileItem({ url: '' })).toThrowError()
+      expect(() => new SharefileItem({ url: '' })).toThrow()
     })
   })
 
   describe('Download Specification', () => {
     it('Throws error when creating specification without params', () => {
       // @ts-expect-error Trying to check for error
-      expect(() => new DownloadSpecification()).toThrowError()
+      expect(() => new DownloadSpecification()).toThrow()
     })
 
     it('Throws error when creating specification with missing params', () => {
       // @ts-expect-error Trying to check for error
-      expect(() => new DownloadSpecification({ DownloadToken: 'x' })).toThrowError()
+      expect(() => new DownloadSpecification({ DownloadToken: 'x' })).toThrow()
     })
   })
 
   describe('Upload Specification', () => {
     it('Throws error when creating specification without params', () => {
       // @ts-expect-error Trying to check for error
-      expect(() => new UploadSpecification()).toThrowError()
+      expect(() => new UploadSpecification()).toThrow()
     })
 
     it('Throws error when creating specification with missing params', () => {
       // @ts-expect-error Trying to check for error
-      expect(() => new UploadSpecification({ ChunkUri: '' })).toThrowError()
+      expect(() => new UploadSpecification({ ChunkUri: '' })).toThrow()
     })
 
-    it('Throws error when uploading with an incorrect method', () => {
+    it('Throws error when uploading with an incorrect method', async () => {
       const uploadSpec = new UploadSpecification({ ChunkUri: 'x', Method: 'Raw' })
-      expect(() => uploadSpec.upload('Data')).rejects.toThrowError()
+      await expect(() => uploadSpec.upload('Data')).rejects.toThrow()
     })
   })
 })
@@ -71,27 +71,27 @@ describe('Object creation', () => {
 describe('Authentication', () => {
   it('Fails authentication - bad username', async () => {
     const SF = new SharefileAPI(credentials.badUsername)
-    expect(SF.authenticate()).rejects.toThrow(AxiosError)
+    await expect(SF.authenticate()).rejects.toThrow(AxiosError)
   })
 
   it('Fails authentication - bad password', async () => {
     const SF = new SharefileAPI(credentials.badPassword)
-    expect(SF.authenticate()).rejects.toThrow(AxiosError)
+    await expect(SF.authenticate()).rejects.toThrow(AxiosError)
   })
 
   it('Fails authentication - bad client id', async () => {
     const SF = new SharefileAPI(credentials.badClientId)
-    expect(SF.authenticate()).rejects.toThrow(AxiosError)
+    await expect(SF.authenticate()).rejects.toThrow(AxiosError)
   })
 
   it('Fails authentication - bad client secret', async () => {
     const SF = new SharefileAPI(credentials.badSecret)
-    expect(SF.authenticate()).rejects.toThrow(AxiosError)
+    await expect(SF.authenticate()).rejects.toThrow(AxiosError)
   })
 
   it('Authenticates correctly', async () => {
     const SF = new SharefileAPI(credentials.good)
-    expect(SF.authenticate()).resolves.toBeTruthy()
+    await expect(SF.authenticate()).resolves.toBeTruthy()
   })
 
   it('Token refreshes after it expires', async () => {
@@ -127,7 +127,7 @@ describe('Items', () => {
 
   it('Gets Home Folder - Children', async () => {
     const folder = await SF.items('/')
-    expect(folder.children()).resolves.toBeTruthy()
+    await expect(folder.children()).resolves.toBeTruthy()
   })
 
   it('Gets Folder By Path', async () => {
@@ -154,7 +154,7 @@ describe('Items', () => {
 
     const parent = await file.parent()
     expect(parent['odata.type']).toBe('ShareFile.Api.Models.Folder')
-  }, 100000)
+  })
 
   it('Gets Child by Name', async () => {
     const folder = await SF.itemsByPath(paths.folder)
@@ -165,7 +165,7 @@ describe('Items', () => {
 
     const otherChild = await folder.childByName(paths.badPath)
     expect(otherChild).toBeFalsy()
-  }, 100000)
+  })
 
   it('Gets Child by Id', async () => {
     const file = await SF.itemsByPath(paths.smallFile)
@@ -180,7 +180,7 @@ describe('Items', () => {
 
     const otherChild = await parent.childById(paths.badPath)
     expect(otherChild).toBeFalsy()
-  }, 100000)
+  })
 
   it('Gets Child by Key', async () => {
     const folder = await SF.itemsByPath(paths.folder)
@@ -189,7 +189,7 @@ describe('Items', () => {
     expect(child).toBeTruthy()
     expect(child?.['odata.type']).toBe('ShareFile.Api.Models.File')
     expect(child?.Name).toBe(path.basename(paths.smallFile))
-  }, 100000)
+  })
 })
 
 describe('Upload / Download', () => {
@@ -205,22 +205,22 @@ describe('Upload / Download', () => {
     const res = await folder.upload('Test!!!', 'testfile.txt')
     expect(res).toBeTruthy()
     expect(res.id).toBeTruthy()
-  }, 100000)
+  })
 
   it('Uploads big file to Folder', async () => {
-    const filename = './test/BigFile.xlsx'
+    const filename = './test/files/LargeFile.xlsx'
 
     const data = await fs.readFile(filename)
     expect(Buffer.isBuffer(data)).toBeTruthy()
 
     const folder = await SF.itemsByPath(paths.folder)
-    const res = await folder.upload(data, 'bigfile.xlsx')
+    const res = await folder.upload(data, 'LargeFile_Upload.xlsx')
     expect(res).toBeTruthy()
     expect(res.id).toBeTruthy()
 
     const md5Hash = md5.sync(filename)
     expect(res.md5).toBe(md5Hash)
-  }, 100000)
+  })
 })
 
 describe('Updates', () => {
@@ -239,12 +239,12 @@ describe('Updates', () => {
     await folder.upload('Rename Test File Content', fileName)
 
     const file = await SF.itemsByPath(`${paths.folder}/${fileName}`)
-    await file.rename(newName)
+    await file.renameTo(newName)
     expect(file.Name).toBe(newName)
 
-    await file.rename(fileName)
+    await file.renameTo(fileName)
     expect(file.Name).toBe(fileName)
-  }, 100000)
+  })
 
   it('Fails when renaming to an invalid name', async () => {
     const fileName = 'rename_test_invalid.txt'
@@ -254,8 +254,8 @@ describe('Updates', () => {
     await folder.upload('Rename Test File Content', fileName)
 
     const file = await SF.itemsByPath(`${paths.folder}/${fileName}`)
-    expect(() => file.rename(newName)).rejects.toThrowError()
-  }, 100000)
+    await expect(() => file.renameTo(newName)).rejects.toThrow()
+  })
 
   it('Moves a file', async () => {
     const fileName = 'test.txt'
@@ -270,12 +270,12 @@ describe('Updates', () => {
     const file = await SF.itemsByPath(`${paths.folder}/from/${fileName}`)
     expect(file.Parent.Id).toBe(fromFolderId)
 
-    await file.move(toFolderId)
+    await file.moveTo(toFolderId)
     expect(file.Parent.Id).toBe(toFolderId)
 
-    await file.move(fromFolderId)
+    await file.moveTo(fromFolderId)
     expect(file.Parent.Id).toBe(fromFolderId)
-  }, 100000)
+  })
 
   it('Fails when moving a file to an invalid directory', async () => {
     const fileName = 'test.txt'
@@ -284,8 +284,8 @@ describe('Updates', () => {
     await fromFolder.upload('Move Test File Content', fileName)
 
     const file = await SF.itemsByPath(`${paths.folder}/from/${fileName}`)
-    expect(() => file.move('123123123')).rejects.toThrowError()
-  }, 100000)
+    await expect(() => file.moveTo('InvalidFolderId')).rejects.toThrow()
+  })
 })
 
 describe('Download', () => {
@@ -303,7 +303,7 @@ describe('Download', () => {
     expect(data).toBeTruthy()
     expect(Buffer.isBuffer(data)).toBeTruthy()
     expect(data.toString('utf-8').length).toBe(20)
-  }, 100000)
+  })
 
   it('Direct downloads an empty file', async () => {
     const file = await SF.itemsByPath(paths.emptyFile)
@@ -312,7 +312,7 @@ describe('Download', () => {
     expect(data).toBeTruthy()
     expect(Buffer.isBuffer(data)).toBeTruthy()
     expect(data.toString('utf-8').length).toBe(0)
-  }, 100000)
+  })
 
   it('Direct downloads a large file', async () => {
     const file = await SF.itemsByPath(paths.largeFile)
@@ -324,7 +324,7 @@ describe('Download', () => {
 
     const remoteHash = crypto.createHash('md5').update(data).digest('hex')
     expect(remoteHash).toBe(file.Hash)
-  }, 100000)
+  })
 
   it('Gets a download specification', async () => {
     const file = await SF.itemsByPath(paths.largeFile)
@@ -333,43 +333,5 @@ describe('Download', () => {
     expect(data).toBeTruthy()
     expect(data.url).toBeTruthy()
     expect(data.token).toBeTruthy()
-  }, 100000)
+  })
 })
-
-/*
-
-
-import paths from '../../config/secrets/paths'
-
-*/
-/*
-function sleep(milliseconds: number) {
-  const date = Date.now()
-  let currentDate = null
-  do {
-    currentDate = Date.now()
-  } while (currentDate - date < milliseconds)
-}
-*/
-/*
-
-
-it('Moves File', async () => {
-  const SF = new ShareFileAPI(credentials.good)
-
-  const fromFolderPath = 'Personal Folders/TestUpload/'
-  const fromFolderID = await SF.itemsByPath(fromFolderPath).then((file) => file.Id)
-
-  const toFolderPath = 'Personal Folders/TestScans/'
-  const toFolderID = await SF.itemsByPath(toFolderPath).then((file) => file.Id)
-
-  const fileName = 'test.txt'
-
-  const testFilePath = 'Personal Folders/TestUpload/' + fileName
-  const file = await SF.itemsByPath(testFilePath)
-  await file.move(toFolderID)
-  expect(file.Parent.Id).toBe(toFolderID)
-  await file.move(fromFolderID)
-  expect(file.Parent.Id).toBe(fromFolderID)
-})
-*/

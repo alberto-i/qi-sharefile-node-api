@@ -1,8 +1,95 @@
 import axios, { AxiosRequestConfig } from 'axios'
-import { DownloadSpecification } from './download-specification'
+import { DownloadApiResponse, DownloadSpecification } from './download-specification'
 import { UploadSpecification } from './upload-specification'
 import { stringify } from 'querystring'
-import type { ChildrenResponse, DownloadResponse, InfoModel, ItemModel, ItemRefModel, UpdateParams } from '../index'
+
+export interface ItemRefModel {
+  Id: string
+  url: string
+  'odata.metadata': string
+  'odata.type': string
+}
+
+export interface ItemModel extends ItemRefModel {
+  Name: string // Item Name
+  FileName: string // Item File Name. ShareFile allows Items to have different Display and File names: display names are shown during client navigation, while file names are used when the item is downloaded.
+  Description: string // Item description
+  Parent: ItemRefModel // Parent container of the Item. A container is usually a Folder object, with a few exceptions - the "Account" is the container of top-level folders.
+
+  FileCount?: number
+  Info?: InfoModel
+
+  Hash?: string
+
+  CreationDate: Date // Item Creation Date.
+  ProgenyEditDate: Date // The last modified date of this item and all of its children, recursively. This parameter is not supported in all ShareFile providers - it is always set in sharefile.com hosting, but not in some StorageZone connectors. The Capability object of the provider indicates whether the provider supports this field or not.
+
+  ClientCreatedDate?: Date
+  ClientModifiedDate?: Date
+
+  ExpirationDate: Date // Defines the Retention Policy for this Item. After this date, the item is automatically moved to recycle bin.
+  ExpirationDays: number // Amount of days until this item expireses (see ExpirationDate)
+
+  DiskSpaceLimit: number // Disk space limit for the Item. Define the maximum amount of bytes that this container can hold at any given time.
+  BandwidthLimitInMB: number // Bandwidth limit for the Item. Define the maximum amount of bytes that can be added and retrieved from this item.
+  FileSizeInKB: number // Item size in Kilobytes. For containers, this field includes all children sizes, recursively.
+  FileSizeBytes: number // Item size in bytes. For containers, this field will include all children sizes, recursively.
+  Path: string // Contains a path, separated by /, from the virtual root to the parent folder for the given file. Example /accountID/folderID/folderID
+
+  CreatorFirstName: string // First name of the user that created this item
+  CreatorLastName: string // Last name of the user that created this item
+  CreatorNameShort: string // Short version of items creator's name. E.g., J. Doe.
+
+  IsHidden: boolean // Defines whether the Item has a 'hidden' flag.
+  HasPendingDeletion: boolean // Indicates that the Item is pending for removal. At the next execution of the Cleanup process, the data blob associated with this item will be removed. This parameter is not used for certain Storage Zone Providers. For example, in CIFS and SharePoint connectors, removals are performed imediately. The Capability "HasRecycleBin" indicates whether this field is used or not in the provider.
+  HasPermissionInfo: boolean
+  HasMultipleVersions: boolean // Specifies whether there are other versions of this item. Not all providers support file versioning. The Capability FileVersioning indicates whether the provider supports file versions.
+  HasPendingAsyncOp: boolean // Specifies whether or not an Item has a pending async operation.
+  State: number
+  VirusStatus?: string
+  PreviewStatus?: string
+
+  StreamID: string // Identifier for the Item stream. An Item represents a single version of a file system object. The stream identifies all versions of the same file system object. For example, when users upload or modify an existing file, a new Item is created with the same StreamID. All Item enumerations return only the latest version of a given stream. You can access the previous versions of a file using the StreamID reference.
+
+  AssociatedFolderTemplateID: string // Folder Template reference. If set, it indicates that this Item was created from a Folder Template. Modifications to the folder template are propagated to the associated items. The Capability FolderTemplate indicates whether the provider supports Folder Templates.
+  IsTemplateOwned: boolean // Indicates whether the item is owned by a Folder Template. If set, it indicates that this Item was created from a Folder Template. Modifications to the folder template are propagated to the associated items. The Capability FolderTemplate indicates whether the provider supports Folder Templates.
+}
+
+export interface InfoModel extends Omit<ItemRefModel, 'Id'> {
+  HasVroot: boolean
+  IsSystemRoot: boolean
+  IsAccountRoot: boolean
+  IsVRoot: boolean
+  IsMyFolders: boolean
+  IsAHomeFolder: boolean
+  IsMyHomeFolder: boolean
+  IsAStartFolder: boolean
+  IsSharedFolder: boolean
+  IsPassthrough: boolean
+  CanAddFolder: boolean
+  CanAddNode: boolean
+  CanView: boolean
+  CanDownload: boolean
+  CanUpload: boolean
+  CanSend: boolean
+  CanDeleteCurrentItem: boolean
+  CanDeleteChildItems: boolean
+  CanManagePermissions: boolean
+  CanCreateOfficeDocuments: boolean
+  FolderPayID: string
+  ShowFolderPayBuyButton: boolean
+}
+
+export interface ChildrenApiResponse {
+  'odata.metadata': string
+  'odata.count': number
+  url: string
+  value: ItemModel[]
+}
+
+type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T
+
+export type UpdateParams = DeepPartial<ItemModel>
 
 export class SharefileItem implements ItemModel {
   Id: string
@@ -121,7 +208,7 @@ export class SharefileItem implements ItemModel {
       includeDeleted,
     }
 
-    const response = await axios.get<DownloadResponse>(`${this.url}/Download`, {
+    const response = await axios.get<DownloadApiResponse>(`${this.url}/Download`, {
       params,
       ...this.#httpConfig,
     })
@@ -139,7 +226,7 @@ export class SharefileItem implements ItemModel {
       includeDeleted,
     }
 
-    const response = await axios.get<ChildrenResponse>(`${this.url}/Children`, {
+    const response = await axios.get<ChildrenApiResponse>(`${this.url}/Children`, {
       params,
       ...this.#httpConfig,
     })
@@ -182,11 +269,11 @@ export class SharefileItem implements ItemModel {
     return uploadSpecification.upload(contents)
   }
 
-  async move(toId: string): Promise<SharefileItem> {
-    return this.update({ Parent: { Id: toId } })
+  async moveTo(newParentId: string): Promise<SharefileItem> {
+    return this.update({ Parent: { Id: newParentId } })
   }
 
-  async rename(newName: string): Promise<SharefileItem> {
+  async renameTo(newName: string): Promise<SharefileItem> {
     return this.update({ Name: newName })
   }
 

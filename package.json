@@ -1,8 +1,23 @@
 {
   "name": "@precisao-i/sharefile-node-api",
-  "version": "1.0.2",
+  "version": "1.0.6",
   "description": "Unofficial Node based API for Sharefile",
   "license": "GPL-3.0",
+  "private": false,
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "format": "prettier --write \"src/**/*.(js|ts)\"",
+    "lint": "eslint src --ext .js,.ts",
+    "lint:fix": "eslint src --fix --ext .js,.ts",
+    "test": "jest --config jest.config.js",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run format && git add -A src",
+    "postversion": "git push && git push --tags"
+  },
   "contributors": [
     {
       "name": "Justin Rowland",
@@ -15,11 +30,10 @@
       "url": "https://github.com/alberto-i"
     }
   ],
-  "private": false,
   "homepage": "https://github.com/alberto-i/qi-sharefile-node-api",
   "repository": {
     "type": "git",
-    "url": "https://github.com/alberto-i/qi-sharefile-node-api.git"
+    "url": "git+https://github.com/alberto-i/qi-sharefile-node-api.git"
   },
   "keywords": [
     "npm",
@@ -29,33 +43,24 @@
     "api",
     "javascript"
   ],
-  "scripts": {
-    "build": "tsc",
-    "test": "jest --runInBand",
-    "pub": "tsc && shx cp package.json dist/src && shx cp README.md dist/src && shx cp LICENSE dist/src && shx rm dist/src/*.map && shx rm dist/src/helpers/*.map && shx rm dist/src/models/*.map && shx rm dist/src/*.spec.* && yarn publish --access public dist/src && shx rm dist/src/package.json dist/src/README.md dist/src/LICENSE"
-  },
   "devDependencies": {
-    "@types/jest": "^29.2.4",
-    "@typescript-eslint/eslint-plugin": "^5.10.0",
-    "@typescript-eslint/parser": "^5.10.0",
-    "eslint": "^7.16.0",
-    "eslint-config-prettier": "^7.1.0",
-    "eslint-config-standard": "^16.0.2",
-    "eslint-friendly-formatter": "^4.0.1",
-    "jest": "^29.3.1",
-    "js-yaml": "^3.13.1",
+    "@types/jest": "29.2.4",
+    "@typescript-eslint/eslint-plugin": "5.46.0",
+    "@typescript-eslint/parser": "5.46.0",
+    "eslint": "8.29.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-jest": "27.1.6",
+    "jest": "29.3.1",
     "md5-file": "^5.0.0",
-    "shx": "^0.3.4",
-    "ts-jest": "^29.0.3",
-    "type-fest": "^3.4.0"
+    "prettier": "2.8.1",
+    "ts-jest": "29.0.3",
+    "typescript": "4.9.4"
   },
+  "files": [
+    "lib/**/*"
+  ],
   "dependencies": {
     "axios": "^1.2.1",
     "detect-content-type": "^1.2.0"
-  },
-  "engines": {
-    "node": "^18 || ^16 || ^14.19",
-    "npm": ">= 6.13.4",
-    "yarn": ">= 1.21.1"
   }
 }

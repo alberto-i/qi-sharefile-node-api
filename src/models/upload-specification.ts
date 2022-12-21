@@ -1,13 +1,39 @@
 import axios from 'axios'
 import detectContentType from 'detect-content-type'
 
-import type { UploadConfirmResponse, UploadInfo, UploadPrepareResponse } from '../index'
+export interface PrepareUploadApiResponse {
+  Method: string
+  ChunkUri: string
+  ProgressData?: string
+  IsResume?: boolean
+  ResumeIndex?: number
+  ResumeOffset?: number
+  ResumeFileHash?: string
+  MaxNumberOfThreads?: number
+  CanAcceptParamsInHeaders?: boolean
+}
+
+export interface SubmitUploadApiResponse {
+  value: UploadInfo[]
+  error: boolean
+}
+
+export interface UploadInfo {
+  uploadid: string
+  parentid: string
+  streamid: string
+  id: string
+  filename: string
+  displayname: string
+  size: number
+  md5: string
+}
 
 export class UploadSpecification {
   method: string
   url: string
 
-  constructor(data: UploadPrepareResponse) {
+  constructor(data: PrepareUploadApiResponse) {
     if (!data) {
       throw new Error('Sharefile API: Empty upload response')
     }
@@ -33,7 +59,7 @@ export class UploadSpecification {
       'Content-Type': detectContentType(Buffer.from(contents)), // Cloning the
     }
 
-    const response = await axios.post<UploadConfirmResponse>(`${this.url}&fmt=json`, contents, {
+    const response = await axios.post<SubmitUploadApiResponse>(`${this.url}&fmt=json`, contents, {
       headers,
     })
 

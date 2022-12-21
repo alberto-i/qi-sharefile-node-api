@@ -6,6 +6,16 @@
 
 Sharefile API for NodeJS. Basic read/download functionality is implemented at the moment, more to come...
 
+## Testing
+
+To run tests, copy the folder /test-data/secrets.sample to /test-data/secrets and fill the API data in auth.ts.
+
+You will also need to upload the following 3 files to your sharefile account, inside the '/Personal Folders/LibTest' folder:
+
+- ./tests/files/LargeFile.xlsx to /Personal Folders/LibTest/LargeFile.xlsx
+- ./tests/files/EmptyFile.txt to /Personal Folders/LibTest/EmptyFile.txt
+- ./tests/files/SmallFile.txt to /Personal Folders/LibTest/SmallFile.txt
+
 ## Contributing
 
 This is a project I can only work on in my spare time so any contributions you make are **greatly appreciated**.
