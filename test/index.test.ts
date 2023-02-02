@@ -335,3 +335,75 @@ describe('Download', () => {
     expect(data.token).toBeTruthy()
   })
 })
+
+describe('Folder creation and Folder Templates', () => {
+  let SF: SharefileAPI
+  const testFolderName = 'test-folder'
+
+  beforeEach(async () => {
+    SF = new SharefileAPI(credentials.good)
+    const auth = await SF.authenticate()
+
+    try {
+      const testFolder = await SF.itemsByPath(`${paths.folder}/${testFolderName}`)
+      await testFolder.delete()
+    } catch (e) {
+      // Folder may not exist.
+    }
+
+    return auth
+  })
+
+  it('Creates a folder', async () => {
+    const folder = await SF.itemsByPath(paths.folder)
+    const newFolder = await folder.createFolder(testFolderName)
+
+    expect(newFolder).toBeTruthy()
+    expect(newFolder.Name).toBe(testFolderName)
+  })
+
+  it('Creates and deletes a folder', async () => {
+    const folder = await SF.itemsByPath(paths.folder)
+    const newFolder = await folder.createFolder(testFolderName)
+
+    expect(newFolder).toBeTruthy()
+    expect(newFolder.Name).toBe(testFolderName)
+
+    await newFolder.delete()
+
+    const promise = SF.itemsByPath(`${paths.folder}/${testFolderName}`)
+    await expect(() => promise).rejects.toThrow()
+  })
+
+  it('Lists available folder templates', async () => {
+    const templates = await SF.listFolderTemplates()
+
+    expect(templates).toBeTruthy()
+  })
+
+  it('Gets a folder template', async () => {
+    const templates = await SF.listFolderTemplates()
+    expect(templates).toBeTruthy()
+
+    const template = templates[0]
+    expect(template).toBeTruthy()
+
+    const folderTemplate = await SF.getFolderTemplate(template.Id)
+    expect(folderTemplate).toBeTruthy()
+  })
+
+  it('Creates a folder using a folder template', async () => {
+    const templates = await SF.listFolderTemplates()
+    expect(templates).toBeTruthy()
+
+    const template = templates[0]
+    expect(template).toBeTruthy()
+
+    const folder = await SF.itemsByPath(paths.folder)
+    const newFolder = await folder.createFolder(testFolderName, template.Id)
+
+    expect(newFolder).toBeTruthy()
+    expect(newFolder.Name).toBe(testFolderName)
+    expect(newFolder.AssociatedFolderTemplateID).toBe(template.Id)
+  })
+})

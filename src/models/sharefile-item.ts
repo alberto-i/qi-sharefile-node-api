@@ -2,19 +2,13 @@ import axios, { AxiosRequestConfig } from 'axios'
 import { DownloadApiResponse, DownloadSpecification } from './download-specification'
 import { UploadSpecification } from './upload-specification'
 import { stringify } from 'querystring'
+import type { ItemChildrenApiResponse, RefModel } from '../types/types'
 
-export interface ItemRefModel {
-  Id: string
-  url: string
-  'odata.metadata': string
-  'odata.type': string
-}
-
-export interface ItemModel extends ItemRefModel {
+export interface ItemModel extends RefModel {
   Name: string // Item Name
+  Parent: RefModel // Parent container of the Item. A container is usually a Folder object, with a few exceptions - the "Account" is the container of top-level folders.
   FileName: string // Item File Name. ShareFile allows Items to have different Display and File names: display names are shown during client navigation, while file names are used when the item is downloaded.
   Description: string // Item description
-  Parent: ItemRefModel // Parent container of the Item. A container is usually a Folder object, with a few exceptions - the "Account" is the container of top-level folders.
 
   FileCount?: number
   Info?: InfoModel
@@ -55,7 +49,7 @@ export interface ItemModel extends ItemRefModel {
   IsTemplateOwned: boolean // Indicates whether the item is owned by a Folder Template. If set, it indicates that this Item was created from a Folder Template. Modifications to the folder template are propagated to the associated items. The Capability FolderTemplate indicates whether the provider supports Folder Templates.
 }
 
-export interface InfoModel extends Omit<ItemRefModel, 'Id'> {
+export interface InfoModel extends Omit<RefModel, 'Id'> {
   HasVroot: boolean
   IsSystemRoot: boolean
   IsAccountRoot: boolean
@@ -80,13 +74,6 @@ export interface InfoModel extends Omit<ItemRefModel, 'Id'> {
   ShowFolderPayBuyButton: boolean
 }
 
-export interface ChildrenApiResponse {
-  'odata.metadata': string
-  'odata.count': number
-  url: string
-  value: ItemModel[]
-}
-
 type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T
 
 export type UpdateParams = DeepPartial<ItemModel>
@@ -99,7 +86,7 @@ export class SharefileItem implements ItemModel {
 
   Name: string
   FileName: string
-  Parent: ItemRefModel
+  Parent: RefModel
   Description: string
   FileCount?: number
   Info?: InfoModel
@@ -217,8 +204,8 @@ export class SharefileItem implements ItemModel {
   }
 
   async parent(): Promise<SharefileItem> {
-    const result = await axios.get<ItemModel>(`${this.url}/Parent`, this.#httpConfig)
-    return new SharefileItem(result.data, this.#httpConfig)
+    const response = await axios.get<ItemModel>(`${this.url}/Parent`, this.#httpConfig)
+    return new SharefileItem(response.data, this.#httpConfig)
   }
 
   async children(includeDeleted = false): Promise<SharefileItem[]> {
@@ -226,7 +213,7 @@ export class SharefileItem implements ItemModel {
       includeDeleted,
     }
 
-    const response = await axios.get<ChildrenApiResponse>(`${this.url}/Children`, {
+    const response = await axios.get<ItemChildrenApiResponse>(`${this.url}/Children`, {
       params,
       ...this.#httpConfig,
     })
@@ -316,5 +303,39 @@ export class SharefileItem implements ItemModel {
     Object.assign(this, response.data)
 
     return this
+  }
+
+  async createFolder(folderName: string, templateId?: string): Promise<SharefileItem> {
+    const body: Partial<ItemModel> = {
+      Name: folderName,
+      Description: '',
+    }
+
+    if (templateId) {
+      body.AssociatedFolderTemplateID = templateId
+    }
+
+    const query = {
+      overwrite: false,
+      passthrough: false,
+    }
+
+    const querystring = stringify(query)
+    const url = `${this.url}/Folder?${querystring}`
+
+    const response = await axios.post<ItemModel>(url, body, this.#httpConfig)
+    return new SharefileItem(response.data, this.#httpConfig)
+  }
+
+  async delete(): Promise<void> {
+    const query = {
+      singleversion: true,
+      forceSync: true,
+    }
+
+    const querystring = stringify(query)
+    const url = `${this.url}?${querystring}`
+
+    await axios.delete<void>(url, this.#httpConfig)
   }
 }

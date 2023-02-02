@@ -1,6 +1,7 @@
 import axios, { type AxiosRequestConfig } from 'axios'
 import { isItemID } from './helpers/is-item-id'
 import { SharefileItem } from './models/sharefile-item'
+import type { FolderTemplateListApiResponse, FolderTemplateModel } from './types/types'
 
 export interface SharefileAuth {
   subdomain: string
@@ -83,6 +84,7 @@ export class SharefileAPI {
     const { data } = await axios.post<SharefileLoginResponse>(this.authPath, config, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept-Encoding': 'identity',
       },
     })
 
@@ -134,5 +136,21 @@ export class SharefileAPI {
 
     const result = await axios.get(uri, httpConfig)
     return new SharefileItem(result.data, httpConfig)
+  }
+
+  async listFolderTemplates(): Promise<FolderTemplateModel[]> {
+    const httpConfig = await this.getHttpConfig()
+    const url = `${this.apiPath}/FolderTemplates`
+
+    const result = await axios.get<FolderTemplateListApiResponse>(url, httpConfig)
+    return result.data.value
+  }
+
+  async getFolderTemplate(id: string): Promise<FolderTemplateModel> {
+    const httpConfig = await this.getHttpConfig()
+    const path = `${this.apiPath}/FolderTemplates(${id})`
+
+    const result = await axios.get<FolderTemplateModel>(path, httpConfig)
+    return result.data
   }
 }
